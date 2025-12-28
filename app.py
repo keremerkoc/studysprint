@@ -4,9 +4,7 @@ from core.task_manager import TaskManager
 
 app = Flask(__name__)
 
-tm = TaskManager()
-tm.add_task("Build StudySprint", priority=1)
-tm.add_task("Go to the gym", priority=3)
+tm = TaskManager("data/tasks.json")
 
 
 @app.get("/")
