@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for
-
+from flask import Flask, render_template, request, redirect, url_for, flash
 from core.task_manager import TaskManager
 
 app = Flask(__name__)
+app.secret_key = "dev-secret-key"
+
 
 tm = TaskManager("data/tasks.json")
 
@@ -12,7 +13,6 @@ def home():
     tasks = tm.sort_for_display()
     return render_template("index.html", tasks=tasks)
 
-
 @app.post("/tasks")
 def create_task():
     title = request.form.get("title", "")
@@ -21,12 +21,11 @@ def create_task():
     try:
         priority = int(priority_str)
         tm.add_task(title=title, priority=priority)
-    except ValueError:
-        # For now: ignore bad input and just go back.
-        # Later we’ll show an error message on the page.
-        pass
+    except ValueError as e:
+        flash(str(e), "error")
 
     return redirect(url_for("home"))
+
 
 
 @app.post("/tasks/<int:task_id>/complete")
