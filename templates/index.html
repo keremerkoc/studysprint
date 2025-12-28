@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>StudySprint</title>
+</head>
+<body>
+    <h1>StudySprint</h1>
+    <p>Your productivity dashboard</p>
+    <h2>Add a Task</h2>
+    <form method="POST" action="/tasks">
+        <label>
+            Title:
+            <input type="text" name="title" placeholder="e.g., Finish assignment" required>
+        </label>
+    
+        <label>
+            Priority:
+            <select name="priority">
+                <option value="1">1 (High)</option>
+                <option value="2">2</option>
+                <option value="3" selected>3</option>
+                <option value="4">4</option>
+                <option value="5">5 (Low)</option>
+            </select>
+        </label>
+    
+        <button type="submit">Add</button>
+    </form>
+    
+    <h2>Tasks</h2>
+    <ul>
+        {% for t in tasks %}
+        <li>
+            #{{ t.id }} — {{ t.title }} (Priority: {{ t.priority }})
+            {% if t.completed %}
+                ✅
+            {% else %}
+                <form method="POST" action="/tasks/{{ t.id }}/complete" style="display:inline;">
+                    <button type="submit">Complete</button>
+                </form>
+            {% endif %}
+        
+            <form method="POST" action="/tasks/{{ t.id }}/delete" style="display:inline;">
+                <button type="submit">Delete</button>
+            </form>
+        </li>
+        
+        {% endfor %}
+    </ul>
+</body>
+
+</html>
