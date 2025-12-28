@@ -45,6 +45,13 @@ def delete_task(task_id: int):
         pass
     return redirect(url_for("home"))
 
+@app.post("/tasks/<int:task_id>/uncomplete")
+def uncomplete_task(task_id: int):
+    try:
+        tm.uncomplete(task_id)
+    except KeyError:
+        pass
+    return redirect(url_for("home"))
 
 if __name__ == "__main__":
     app.run(debug=True)

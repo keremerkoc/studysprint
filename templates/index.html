@@ -6,78 +6,72 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
     
-<body>
-    <h1>StudySprint</h1>
-    <p>Your productivity dashboard</p>
-    <h2>Add a Task</h2>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul>
-            {% for category, message in messages %}
-                <li style="color: red;">{{ message }}</li>
-            {% endfor %}
-            </ul>
-        {% endif %}
-        {% endwith %}
-
-    <form method="POST" action="/tasks">
-        <label>
-            Title:
-            <input type="text" name="title" placeholder="e.g., Finish assignment" required>
-        </label>
-    
-        <label>
-            Priority:
-            <select name="priority">
-                <option value="1">1 (High)</option>
-                <option value="2">2</option>
-                <option value="3" selected>3</option>
-                <option value="4">4</option>
-                <option value="5">5 (Low)</option>
-            </select>
-        </label>
-    
-        <button type="submit">Add</button>
-    </form>
-    
-    <h2>Tasks</h2>
-    <ul>
-        {% for t in tasks %}
-          <li>
-            <strong>#{{ t.id }}</strong> — {{ t.title }}
+    <body>
+        <div class="container">
+          <div class="header">
+            <div>
+              <h1>StudySprint</h1>
+              <p class="subtitle">Your productivity dashboard</p>
+            </div>
+          </div>
       
-            <span style="
-                margin-left: 8px;
-                padding: 2px 6px;
-                border-radius: 4px;
-                font-size: 12px;
-                background-color:
-                    {% if t.priority == 1 %}#ef4444
-                    {% elif t.priority == 2 %}#f97316
-                    {% elif t.priority == 3 %}#eab308
-                    {% elif t.priority == 4 %}#22c55e
-                    {% else %}#3b82f6
-                    {% endif %};
-                color: white;
-            ">
-                P{{ t.priority }}
-            </span>
+          <div class="card">
+            <h2 style="margin: 0 0 10px 0;">Add a Task</h2>
       
-            {% if t.completed %}
-              <span style="margin-left: 8px; color: green;">✔ completed</span>
-            {% else %}
-              <form method="POST" action="/tasks/{{ t.id }}/complete" style="display:inline;">
-                <button type="submit">Complete</button>
-              </form>
-            {% endif %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="flash">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
       
-            <form method="POST" action="/tasks/{{ t.id }}/delete" style="display:inline;">
-              <button type="submit">Delete</button>
+            <form method="POST" action="/tasks" class="row" style="margin-top: 12px;">
+              <input class="input" type="text" name="title" placeholder="e.g., Finish assignment" required>
+      
+              <select class="select" name="priority">
+                <option value="1">Priority 1 (High)</option>
+                <option value="2">Priority 2</option>
+                <option value="3" selected>Priority 3</option>
+                <option value="4">Priority 4</option>
+                <option value="5">Priority 5 (Low)</option>
+              </select>
+      
+              <button class="btn btn-primary" type="submit">Add</button>
             </form>
-          </li>
-        {% endfor %}
-      </ul>
       
-</body>
+            <h2 style="margin: 18px 0 10px 0;">Tasks</h2>
+      
+            <ul class="list">
+              {% for t in tasks %}
+                <li class="task {% if t.completed %}completed{% endif %}">
+                  <div class="task-left">
+                    <span class="badge">#{{ t.id }}</span>
+                    <span class="badge p{{ t.priority }}">P{{ t.priority }}</span>
+                    <span class="task-title">{{ t.title }}</span>
+                  </div>
+      
+                  <div class="actions">
+                    {% if t.completed %}
+                      <form method="POST" action="/tasks/{{ t.id }}/uncomplete">
+                        <button class="btn" type="submit">Undo</button>
+                      </form>
+                    {% else %}
+                      <form method="POST" action="/tasks/{{ t.id }}/complete">
+                        <button class="btn" type="submit">Complete</button>
+                      </form>
+                    {% endif %}
+      
+                    <form method="POST" action="/tasks/{{ t.id }}/delete">
+                      <button class="btn btn-danger" type="submit">Delete</button>
+                    </form>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </body>
+      
 
 </html>
