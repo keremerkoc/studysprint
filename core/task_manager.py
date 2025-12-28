@@ -11,10 +11,15 @@ from core.task import Task
 class TaskManager:
     def __init__(self, data_file: str = "data/tasks.json") -> None:
         self._tasks: List[Task] = []
-        self._next_id: int = 1
         self._data_path = Path(data_file)
-
         self.load()
+
+    def _reindex(self) -> None:
+        """Ensure task IDs are always 1..n with no gaps."""
+        # Keep current order by id (stable)
+        self._tasks.sort(key=lambda t: t.id)
+        for i, t in enumerate(self._tasks, start=1):
+            t.id = i
 
     def add_task(self, title: str, due: Optional[date] = None, priority: int = 3) -> Task:
         title = title.strip()
@@ -23,9 +28,9 @@ class TaskManager:
         if not (1 <= priority <= 5):
             raise ValueError("Priority must be between 1 and 5.")
 
-        task = Task(id=self._next_id, title=title, due=due, priority=priority)
+        new_id = len(self._tasks) + 1
+        task = Task(id=new_id, title=title, due=due, priority=priority)
         self._tasks.append(task)
-        self._next_id += 1
 
         self.save()
         return task
@@ -50,6 +55,7 @@ class TaskManager:
     def delete(self, task_id: int) -> None:
         task = self.get_by_id(task_id)
         self._tasks.remove(task)
+        self._reindex()
         self.save()
 
     def due_today(self) -> List[Task]:
@@ -80,7 +86,6 @@ class TaskManager:
         self._data_path.parent.mkdir(parents=True, exist_ok=True)
 
         data = {
-            "next_id": self._next_id,
             "tasks": [
                 {
                     "id": t.id,
@@ -103,7 +108,6 @@ class TaskManager:
         with self._data_path.open() as f:
             data = json.load(f)
 
-        self._next_id = data.get("next_id", 1)
         self._tasks = [
             Task(
                 id=t["id"],
@@ -114,3 +118,4 @@ class TaskManager:
             )
             for t in data.get("tasks", [])
         ]
+        self._reindex()
